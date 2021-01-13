@@ -1,0 +1,175 @@
+﻿@model IEnumerable<KeyValuePair<string, List<APIUser>>>
+
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container justify-content-start">
+        </div>
+        <div class="container justify-content-center">
+            <a class="navbar-brand">University Roadmap Admin Panel</a>
+        </div>
+        <div class="container justify-content-end">
+            <input class="form-control" id="search" onkeyup="myFunction()" type="text" placeholder="Search the Username.. " aria-label="Search">
+        </div>
+    </nav>
+</header>
+<script>
+    function myFunction() {
+        var txt = document.getElementById("search").value;
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Search", "API", new { text = "Dilan" })'.replace("Dilan",txt),
+            contentType: "application/json",
+            dataType: "json",
+            success: function (data) {
+                $("#fbody").load(window.location.href + " #fbody");
+            }
+        });
+    }
+
+</script>
+
+@if (@TempData["access"] != null)
+{
+    if (@TempData["access"].ToString() == "yes")
+    {
+        <div id="fbody">
+            @foreach (KeyValuePair<string, List<APIUser>> item in Model)
+            {
+                @if (@TempData["searchText"] != null)
+                {
+                    @if (@TempData["searchText"].ToString() == "*" || item.Value[0].username.ToLower().Contains(@TempData["searchText"].ToString().ToLower().Trim())
+                      || @TempData["searchText"].ToString() == "" || (@TempData["searchText"].ToString().ToLower().Trim().Length == 1))
+                    {
+                        <div class="panel-group mt-2" id="accordion" role="tablist" aria-multiselectable="true">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="heading_@(item.Key)">
+                                    <div class="panel-title box-shadow p-4 pl-3 pr-3">
+                                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_@(item.Key)" aria-expanded="true" aria-controls="collapse_@(item.Key)" style="text-decoration: none;">
+                                            <div class="row d-flex justify-content-start">
+                                                <div class="pl-3 d-inline-flex">
+                                                    <h3>@item.Value[0].username</h3>
+                                                    <span class="one pl-5 pt-2"><i><p class="text-center">@item.Value[0].faculty - (@item.Value[0].type)</p></i> </span>
+                                                </div>
+                                                <div class="pr-3 align-self-end ml-auto">
+                                                    <form>
+                                                        <a href="@Url.Action("RemoveUser", "API", new { username = @item.Value[0].username })" class="btn btn-outline-danger" role="button">Remove</a>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div id="collapse_@(item.Key)" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_@(item.Key)">
+                                    <div class="panel-body">
+                                        <div class="row">
+
+                                            @for (int i = 1; i < item.Value.Count; i++)
+                                            {
+
+                                                <div class="col-md-2 text-center mt-1 m-3 p-3 box-shadow">
+                                                    <h5>@item.Value[i].username <br></h5>
+                                                    <p>@item.Value[i].faculty<br>(@item.Value[i].type)</p>
+                                                    <a href="@Url.Action("UnfriendUser", "API", new { user_1 = @item.Value[0].username, user_2 = @item.Value[i].username })" class="btn btn-outline-info" role="button">Unfriend</a>
+                                                </div>
+
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+
+        </div>
+        <div class="d-none">
+            @if (@TempData["status"] != null)
+            {
+                @if (@TempData["status"].ToString() == "yes")
+                {
+                    <script>
+                        Swal.fire({
+                            position: 'bottom-center',
+                            icon: 'success',
+                            title: 'User Deleted..!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    </script>
+                }
+                @if (@TempData["status"].ToString() == "no")
+                {
+                    <script>
+                        Swal.fire({
+                            position: 'bottom-center',
+                            icon: 'error',
+                            title: "Couldn't complete the requested operation..!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    </script>
+                }
+                @TempData.Remove("status");
+            }
+
+
+
+            @if (@TempData["removestatus"] != null)
+            {
+                @if (@TempData["removestatus"].ToString() == "yes")
+                {
+                    <script>
+                        Swal.fire({
+                            position: 'bottom-center',
+                            icon: 'success',
+                            title: 'User unfriend successfully..!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    </script>
+                }
+                @if (@TempData["removestatus"].ToString() == "no")
+                {
+                    <script>
+                        Swal.fire({
+                            position: 'bottom-center',
+                            icon: 'error',
+                            title: "Couldn't complete the requested operation..!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    </script>
+                }
+                @TempData.Remove("removestatus");
+            }
+        </div>
+
+        <div class="d-none">
+            @TempData.Remove("access");
+        </div>
+    }
+    else
+    {
+        <h1 class="justify-content-center">
+            You have no permission to directly access this area..!
+        </h1>
+        <h2 class="text-danger justify-content-center">
+            Please prove your identity.
+        </h2>
+    }
+}
+else
+{
+    <h1 class="justify-content-center">
+        You have no permission to directly access this area..!
+    </h1>
+    <h2 class="text-danger justify-content-center">
+        Please prove your identity.
+    </h2>
+}

@@ -1,0 +1,63 @@
+﻿@model Road_Map_Web_API.Models.AdminUser
+
+@{ ViewData["Title"] = "Admin Panel"; }
+
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        
+        <div class="container justify-content-center">
+            <a class="navbar-brand">University Roadmap Admin Panel</a>
+        </div>
+        
+    </nav>
+</header>
+
+<div class="row justify-content-md-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header text-center">
+                Login
+            </div>
+            <div class="card-body">
+                @using (Html.BeginForm("Login", "API", FormMethod.Post))
+                {
+    @Html.AntiForgeryToken()
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Username, "Username")
+                        @Html.TextBoxFor(m => m.Username, "", new { @class = "form-control", @placeholder = "Username", required = "required" })
+                    </div>
+                                    <div class="form-group hide">
+                                        @Html.LabelFor(m => m.Password, "Password")
+                                        @Html.TextBoxFor(m => m.Password, "", new { @class = "form-control", @placeholder = "Password", type = "password", required = "required" })
+                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="submit" name="submit" class="btn btn-primary" value="Login" />
+                                                        <input type="reset" name="clear" class="btn btn-primary" value="Clear" />
+
+                                                    </div>}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="d-none">
+    @if (@TempData["login"] != null)
+    {
+@if (@TempData["login"].ToString() == "invalid")
+{
+<script>
+    Swal.fire({
+        position: 'bottom-center',
+        icon: 'error',
+        title: 'Username or Password incorrect..!',
+        showConfirmButton: false,
+        timer: 1500
+    });
+</script>}
+                @TempData.Remove("login");
+            }
+
+
+</div>
